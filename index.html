@@ -1,0 +1,416 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="description" content="Complete productivity suite with timetable, habit tracker, goals, and analytics." />
+  <meta name="theme-color" content="#3b82f6" />
+  
+  <title>Productivity Suite | Timetable & Habit Tracker</title>
+  
+  <!-- CSS -->
+  <link rel="stylesheet" href="style.css" />
+  
+  <!-- Icons -->
+  <link rel="icon" href="assets/favicon.ico" />
+  <link rel="apple-touch-icon" href="assets/icons/icon-192.png" />
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json" />
+</head>
+<body class="light-mode">
+  <!-- Navigation -->
+  <nav class="main-nav" role="navigation">
+    <div class="nav-container">
+      <div class="nav-brand">
+        <h1>Productivity Suite</h1>
+        <span class="nav-subtitle">Timetable • Habits • Goals</span>
+      </div>
+      
+      <div class="nav-controls">
+        <button id="themeToggle" class="nav-btn" aria-label="Toggle theme">
+          <span class="theme-icon">🌙</span>
+        </button>
+        
+        <div class="view-selector">
+          <button class="view-btn active" data-view="daily">Daily</button>
+          <button class="view-btn" data-view="weekly">Weekly</button>
+          <button class="view-btn" data-view="analytics">Analytics</button>
+        </div>
+        
+        <button class="nav-btn notification-btn" id="notificationBtn" aria-label="Notifications">
+          <span class="notification-icon">🔔</span>
+          <span class="notification-badge hidden">0</span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Container -->
+  <div class="app-container">
+    
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-section">
+        <h3>Quick Actions</h3>
+        <button class="sidebar-btn" onclick="addQuickTask()">
+          <span>➕</span> Add Quick Task
+        </button>
+        <button class="sidebar-btn" onclick="startPomodoro()">
+          <span>⏱️</span> Start Pomodoro
+        </button>
+        <button class="sidebar-btn" onclick="takeBreak()">
+          <span>☕</span> Take Break
+        </button>
+      </div>
+      
+      <div class="sidebar-section">
+        <h3>Today's Stats</h3>
+        <div class="stats">
+          <div class="stat-item">
+            <span class="stat-label">Focus Time</span>
+            <span class="stat-value" id="focusTimeToday">0h</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Tasks Done</span>
+            <span class="stat-value" id="tasksDoneToday">0/0</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Habits</span>
+            <span class="stat-value" id="habitsToday">0%</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="sidebar-section">
+        <h3>Weekly Goals</h3>
+        <div class="goals-list" id="weeklyGoals">
+          <!-- Filled by JS -->
+        </div>
+        <button class="sidebar-btn small" onclick="addGoal()">
+          <span>🎯</span> Add Goal
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      
+      <!-- Daily View (Default) -->
+      <section id="dailyView" class="view active">
+        
+        <!-- Focus Card -->
+        <div class="focus-card enhanced">
+          <div class="focus-header">
+            <h2>🎯 Today's Focus</h2>
+            <div class="focus-timer">
+              <span id="focusTimer">00:00</span>
+              <button onclick="toggleFocusTimer()" class="timer-btn" id="timerToggle">Start</button>
+            </div>
+          </div>
+          
+          <input 
+            type="text" 
+            id="focusInput" 
+            placeholder="What will you accomplish today?" 
+            maxlength="120" 
+          />
+          
+          <div class="focus-meta">
+            <div class="focus-tags">
+              <span class="tag priority-high" data-priority="high">High Priority</span>
+              <span class="tag category-work">Work</span>
+              <button class="tag-btn" onclick="addFocusTag()">+ Tag</button>
+            </div>
+            <div class="focus-actions">
+              <button onclick="saveFocus()" class="btn-primary">Save Focus</button>
+              <span id="lastSaved" class="save-time"></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Today's Tasks -->
+        <div class="tasks-card">
+          <div class="card-header">
+            <h2>📝 Today's Tasks</h2>
+            <button class="btn-icon" onclick="addTask()" title="Add task">➕</button>
+          </div>
+          
+          <div class="task-input">
+            <input type="text" id="newTaskInput" placeholder="Add a new task..." />
+            <button onclick="addTaskFromInput()" class="btn-small">Add</button>
+          </div>
+          
+          <div class="tasks-list" id="tasksList">
+            <!-- Tasks populated by JS -->
+          </div>
+          
+          <div class="task-stats">
+            <span>Total: <strong id="totalTasks">0</strong></span>
+            <span>Completed: <strong id="completedTasks">0</strong></span>
+            <span>Progress: <strong id="taskProgress">0%</strong></span>
+          </div>
+        </div>
+
+        <!-- Habit Tracker -->
+        <div class="habits-card">
+          <div class="card-header">
+            <h2>✅ Daily Habits</h2>
+            <button class="btn-icon" onclick="addHabit()" title="Add habit">➕</button>
+          </div>
+          
+          <div class="habits-list" id="habitsList">
+            <!-- Habits populated by JS -->
+          </div>
+          
+          <div class="habits-calendar">
+            <h3>This Week</h3>
+            <div class="calendar-grid" id="habitsCalendar">
+              <!-- Calendar filled by JS -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Timetable Section -->
+        <div class="timetable-card">
+          <div class="card-header">
+            <h2>📅 Daily Timetable</h2>
+            <div class="time-display" id="currentTime"></div>
+          </div>
+          
+          <div class="view-selector">
+            <button class="view-btn-sm active" data-schedule="weekday">Weekday</button>
+            <button class="view-btn-sm" data-schedule="weekend">Weekend</button>
+          </div>
+          
+          <!-- Weekday Table -->
+          <div class="schedule-table active" id="weekdayTable">
+            <table class="schedule">
+              <thead>
+                <tr><th>Time</th><th>Activity</th><th>Status</th></tr>
+              </thead>
+              <tbody>
+                <!-- Filled by JS -->
+              </tbody>
+            </table>
+          </div>
+          
+          <!-- Weekend Table -->
+          <div class="schedule-table" id="weekendTable">
+            <table class="schedule">
+              <thead>
+                <tr><th>Time</th><th>Activity</th><th>Status</th></tr>
+              </thead>
+              <tbody>
+                <!-- Filled by JS -->
+              </tbody>
+            </table>
+          </div>
+          
+          <div class="time-progress">
+            <div class="progress-bar">
+              <div class="progress-fill" id="dayProgress"></div>
+            </div>
+            <div class="progress-text">
+              <span>Day Progress: <strong id="progressPercent">0%</strong></span>
+              <span id="nextActivity">Next: Wake up</span>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- Weekly View -->
+      <section id="weeklyView" class="view">
+        <div class="weekly-header">
+          <h2>📅 Weekly Overview</h2>
+          <div class="week-nav">
+            <button onclick="changeWeek(-1)">← Previous</button>
+            <span id="currentWeek">Week of Jan 1</span>
+            <button onclick="changeWeek(1)">Next →</button>
+          </div>
+        </div>
+        
+        <div class="weekly-grid" id="weeklyGrid">
+          <!-- Filled by JS -->
+        </div>
+        
+        <div class="weekly-stats">
+          <div class="stat-card">
+            <h3>Focus Hours</h3>
+            <div class="stat-big" id="weeklyFocus">0h</div>
+            <div class="stat-trend">+0% from last week</div>
+          </div>
+          <div class="stat-card">
+            <h3>Tasks Completed</h3>
+            <div class="stat-big" id="weeklyTasks">0</div>
+            <div class="stat-trend">0% success rate</div>
+          </div>
+          <div class="stat-card">
+            <h3>Habit Streak</h3>
+            <div class="stat-big" id="weeklyStreak">0 days</div>
+            <div class="stat-trend">Longest: 0 days</div>
+          </div>
+          <div class="stat-card">
+            <h3>Productivity</h3>
+            <div class="stat-big" id="weeklyProductivity">0%</div>
+            <div class="stat-trend">Based on goals</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Analytics View -->
+      <section id="analyticsView" class="view">
+        <div class="analytics-header">
+          <h2>📈 Analytics Dashboard</h2>
+          <select id="timeRange" onchange="updateAnalytics()">
+            <option value="week">This Week</option>
+            <option value="month">This Month</option>
+            <option value="quarter">Last 3 Months</option>
+          </select>
+        </div>
+        
+        <div class="analytics-grid">
+          <div class="chart-card">
+            <h3>Focus Time Distribution</h3>
+            <canvas id="focusChart"></canvas>
+          </div>
+          
+          <div class="chart-card">
+            <h3>Habit Consistency</h3>
+            <canvas id="habitChart"></canvas>
+          </div>
+          
+          <div class="chart-card">
+            <h3>Task Completion Rate</h3>
+            <canvas id="taskChart"></canvas>
+          </div>
+          
+          <div class="chart-card">
+            <h3>Daily Productivity Trend</h3>
+            <canvas id="productivityChart"></canvas>
+          </div>
+        </div>
+        
+        <div class="insights-card">
+          <h3>📊 Insights & Recommendations</h3>
+          <div class="insights-list" id="insightsList">
+            <!-- Filled by JS -->
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Data Management Panel -->
+  <div class="data-panel">
+    <div class="data-controls">
+      <button onclick="exportData()" class="btn-export">
+        <span>💾</span> Export All Data
+      </button>
+      <label class="btn-import">
+        <span>📂</span> Import Data
+        <input type="file" id="importFile" accept=".json" onchange="importData(event)" hidden />
+      </label>
+      <button onclick="clearToday()" class="btn-clear">
+        <span>🔄</span> Clear Today
+      </button>
+      <button onclick="printReport()" class="btn-print">
+        <span>🖨️</span> Print Report
+      </button>
+      <button onclick="exportCSV()" class="btn-csv">
+        <span>📊</span> Export CSV
+      </button>
+    </div>
+    <div class="data-status" id="dataStatus">
+      <span>🔄 Loading...</span>
+    </div>
+  </div>
+
+  <!-- Modals -->
+  <div id="taskModal" class="modal hidden">
+    <div class="modal-content">
+      <h2>Add New Task</h2>
+      <input type="text" id="modalTaskInput" placeholder="Task description..." />
+      <div class="modal-options">
+        <label>Priority:
+          <select id="taskPriority">
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+          </select>
+        </label>
+        <label>Category:
+          <select id="taskCategory">
+            <option value="work">Work</option>
+            <option value="study">Study</option>
+            <option value="personal">Personal</option>
+            <option value="health">Health</option>
+          </select>
+        </label>
+      </div>
+      <div class="modal-actions">
+        <button onclick="saveTaskModal()" class="btn-primary">Save Task</button>
+        <button onclick="closeModal('taskModal')" class="btn-secondary">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="habitModal" class="modal hidden">
+    <div class="modal-content">
+      <h2>Add New Habit</h2>
+      <input type="text" id="modalHabitInput" placeholder="Habit name..." />
+      <div class="modal-options">
+        <label>Frequency:
+          <select id="habitFrequency">
+            <option value="daily">Daily</option>
+            <option value="weekdays">Weekdays Only</option>
+            <option value="weekly">Weekly</option>
+          </select>
+        </label>
+        <label>Time of Day:
+          <select id="habitTime">
+            <option value="morning">Morning</option>
+            <option value="afternoon">Afternoon</option>
+            <option value="evening">Evening</option>
+            <option value="anytime">Anytime</option>
+          </select>
+        </label>
+      </div>
+      <div class="modal-actions">
+        <button onclick="saveHabitModal()" class="btn-primary">Save Habit</button>
+        <button onclick="closeModal('habitModal')" class="btn-secondary">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notification Center -->
+  <div id="notificationCenter" class="notification-center hidden">
+    <div class="notification-header">
+      <h3>Notifications</h3>
+      <button onclick="clearNotifications()" class="btn-small">Clear All</button>
+    </div>
+    <div class="notification-list" id="notificationList">
+      <!-- Notifications appear here -->
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-content">
+      <p>Productivity Suite v2.0 • <a href="javascript:window.print()">Print Report</a> • <button onclick="toggleTheme()" class="link-btn">Toggle Theme</button></p>
+      <p class="footer-note">All data stored locally • <span id="storageUsage">0KB used</span> • Auto-saves every 30 seconds</p>
+    </div>
+  </footer>
+
+  <!-- JavaScript -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
